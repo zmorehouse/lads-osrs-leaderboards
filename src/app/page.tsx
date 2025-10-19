@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
@@ -22,7 +22,8 @@ const DEFAULT_NAMES = [
   "Precumbreath",
   "Alexiisss",
   "JonezyAU",
-  "ThyJamison"
+  "ThyJamison",
+
 ];
 
 type SortKey = "player" | "level" | "xp" | "rank";
@@ -34,7 +35,7 @@ export default function Home() {
   const [skillOrder, setSkillOrder] = useState<string[]>([]);
   const [selectedSkill, setSelectedSkill] = useState<string>("Overall");
   const [sortBy, setSortBy] = useState<SortKey>("level");
-  const [sortDir, setSortDir] = useState<SortDir>("desc"); 
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
   const [errors, setErrors] = useState<string[]>([]);
 
   async function fetchPlayer(name: string): Promise<PlayerPayload | null> {
@@ -45,7 +46,7 @@ export default function Home() {
     return res.json();
   }
 
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     setErrors([]);
     try {
@@ -64,16 +65,17 @@ export default function Home() {
         if (!ok[0].order.includes("Overall")) setSelectedSkill(ok[0].order[0]);
       }
       if (errs.length) setErrors(errs.map((e) => `Failed to load ${e}`));
-    } catch (e: any) {
-      setErrors([e?.message ?? "Unknown error"]);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Unknown error";
+      setErrors([msg]);
     } finally {
       setLoading(false);
     }
-  }
+  }, []);
 
   useEffect(() => {
-    load();
-  }, []);
+    void load();
+  }, [load]);
 
   function headerClick(col: SortKey) {
     if (sortBy === col) {
@@ -100,6 +102,7 @@ export default function Home() {
 
       if (primary !== 0) return sortDir === "asc" ? primary : -primary;
 
+      // Tiebreakers: Level desc → XP desc → Rank asc → Player A→Z
       const byLevel = b.level - a.level;
       if (byLevel !== 0) return byLevel;
       const byXP = b.xp - a.xp;
@@ -112,43 +115,49 @@ export default function Home() {
     return base.map((r, i) => ({ groupRank: i + 1, ...r }));
   }, [players, selectedSkill, sortBy, sortDir]);
 
-  function ariaSort(col: SortKey): React.AriaAttributes["aria-sort"] {
+  function ariaSort(col: SortKey): "none" | "ascending" | "descending" {
     if (sortBy !== col) return "none";
     return sortDir === "asc" ? "ascending" : "descending";
   }
 
-  const ThButton = ({
+  // A11y: put aria-sort on the <th>, not the button
+  function SortableTH({
     col,
-    children,
     className,
-  }: { col: SortKey; children: React.ReactNode; className?: string }) => (
-    <button
-      type="button"
-      onClick={() => headerClick(col)}
-      aria-sort={ariaSort(col)}
-      className={`inline-flex items-center gap-1 font-medium hover:underline ${className ?? ""}`}
-      title="Click to sort"
-    >
-      {children}
-      <span aria-hidden className="text-xs opacity-70">
-        {sortBy === col ? (sortDir === "asc" ? "▲" : "▼") : ""}
-      </span>
-    </button>
-  );
+    children,
+  }: {
+    col: SortKey;
+    className?: string;
+    children: React.ReactNode;
+  }) {
+    return (
+      <TableHead aria-sort={ariaSort(col)} className={className}>
+        <button
+          type="button"
+          onClick={() => headerClick(col)}
+          className="inline-flex items-center gap-1 font-medium hover:underline"
+          title="Click to sort"
+        >
+          {children}
+          <span aria-hidden className="text-xs opacity-70">
+            {sortBy === col ? (sortDir === "asc" ? "▲" : "▼") : ""}
+          </span>
+        </button>
+      </TableHead>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-5xl space-y-6">
-        
+
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <CardTitle>
-             OnlyLads OSRS Rankings
-            </CardTitle>
+OnlyLads OSRS Rankings            </CardTitle>
 
-            {}
-            <div className="w-30">
+            <div className="w-28">
               <Select value={selectedSkill} onValueChange={(v) => setSelectedSkill(v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a skill" />
@@ -165,7 +174,6 @@ export default function Home() {
           </CardHeader>
 
           <CardContent className="overflow-auto">
-            {}
             {errors.length > 0 && (
               <div className="mb-3 rounded-md border p-3 text-sm text-red-600">
                 {errors.map((e, i) => (
@@ -178,18 +186,10 @@ export default function Home() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="min-w-[90px]">Group Rank</TableHead>
-                  <TableHead className="min-w-[180px]">
-                    <ThButton col="player">Player</ThButton>
-                  </TableHead>
-                  <TableHead className="min-w-[80px]">
-                    <ThButton col="level">Level</ThButton>
-                  </TableHead>
-                  <TableHead className="min-w-[140px]">
-                    <ThButton col="xp">XP</ThButton>
-                  </TableHead>
-                  <TableHead className="min-w-[100px]">
-                    <ThButton col="rank">Global Rank</ThButton>
-                  </TableHead>
+                  <SortableTH col="player" className="min-w-[180px]">Player</SortableTH>
+                  <SortableTH col="level" className="min-w-[80px]">Level</SortableTH>
+                  <SortableTH col="xp" className="min-w-[140px]">XP</SortableTH>
+                  <SortableTH col="rank" className="min-w-[100px]">Global Rank</SortableTH>
                 </TableRow>
               </TableHeader>
               <TableBody>
