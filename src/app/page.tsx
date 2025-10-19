@@ -23,7 +23,6 @@ const DEFAULT_NAMES = [
   "Alexiisss",
   "JonezyAU",
   "ThyJamison",
-
 ];
 
 type SortKey = "player" | "level" | "xp" | "rank";

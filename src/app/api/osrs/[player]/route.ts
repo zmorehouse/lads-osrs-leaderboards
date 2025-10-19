@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export const revalidate = 3600; 
+export const revalidate = 900; 
 
 const SKILLS = [
   "Overall","Attack","Defence","Strength","Hitpoints","Ranged","Prayer","Magic",
@@ -23,7 +23,6 @@ function parseIndexLite(csv: string) {
   return { skills, order: SKILLS };
 }
 
-// NOTE: params is a Promise in Next 15+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ player: string }> }
