@@ -19,7 +19,7 @@ type PlayerPayload = {
 const DEFAULT_NAMES = [
   "Zoobz69",
   "loub0t69",
-  "Precumbreath",
+  "Melburne6",
   "Alexiisss",
   "JonezyAU",
   "ThyJamison",
