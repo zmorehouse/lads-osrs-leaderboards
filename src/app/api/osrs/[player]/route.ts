@@ -1,6 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable @next/next/no-img-element */
+
 import { NextRequest, NextResponse } from "next/server";
 
-export const revalidate = 900; 
+export const revalidate = 900;
 
 const SKILLS = [
   "Overall","Attack","Defence","Strength","Hitpoints","Ranged","Prayer","Magic",
@@ -28,12 +34,17 @@ export async function GET(
   { params }: { params: Promise<{ player: string }> }
 ) {
   const { player } = await params;
-
   const url = `https://secure.runescape.com/m=hiscore_oldschool/index_lite.ws?player=${sanitizeRSN(
     player
   )}`;
 
-  const res = await fetch(url, { next: { revalidate: 3600 } });
+  const res = await fetch(url, {
+    next: {
+      revalidate: 3600,
+      tags: ["osrs", `osrs:${player.toLowerCase()}`],
+    },
+  });
+
   if (!res.ok) {
     return NextResponse.json({ error: `Upstream error ${res.status}` }, { status: 502 });
   }
