@@ -862,7 +862,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            🎣 Learn how to get good at RuneScape
+            🎣 How to get good at RuneScape
           </a>
         </Button>
       </footer>
