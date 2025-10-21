@@ -477,10 +477,10 @@ export default function Home() {
     <main className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-5xl space-y-6">
         <Card>
-          <CardHeader className="text-xl flex flex-row items-center justify-between space-y-0">
+        <CardHeader className="text-xl flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between md:gap-0">
             <CardTitle>The Lads' OSRS Rankings</CardTitle>
 
-            <div className="flex items-center gap-3">
+            <div className="flex w-full flex-col gap-3 sm:flex-row md:w-auto">
               <div className="w-auto">
                 <Select
                   value={selectedSkill}
@@ -519,6 +519,8 @@ export default function Home() {
               </Button>
             </div>
           </CardHeader>
+
+     
 
           <CardContent className="overflow-auto">
             {errors.length > 0 && (
@@ -747,7 +749,7 @@ export default function Home() {
           <Card>
             <CardContent className="overflow-auto">
               <table className="w-full text-sm">
-                <thead>
+                <thead className="hidden md:table-header-group">
                   <tr className="text-left border-b">
                     <th className="py-2 px-3 font-semibold">Player</th>
                     <th className="py-2 px-3 font-semibold">Level 99s</th>
@@ -766,7 +768,6 @@ export default function Home() {
                       const nextInfo = ninesData.next.find(
                         (x) => x.player === n.player
                       )?.best;
-
                       const playerData = players.find(
                         (p) => p.player === n.player
                       );
@@ -779,10 +780,21 @@ export default function Home() {
                         : [];
 
                       return (
-                        <tr key={n.player} className="border-b last:border-0">
-                          <td className="py-2 px-3 font-medium">{n.player}</td>
+                        <tr
+                          key={n.player}
+                          className="border-b last:border-0 md:table-row block py-3"
+                        >
+                          <td className="py-2 px-3 md:table-cell block">
+                            <div className="md:hidden text-xs uppercase text-muted-foreground mb-1">
+                              Player
+                            </div>
+                            <div className="font-medium">{n.player}</div>
+                          </td>
 
-                          <td className="py-2 px-3">
+                          <td className="py-2 px-3 md:table-cell block">
+                            <div className="md:hidden text-xs uppercase text-muted-foreground mb-1">
+                              Level 99s
+                            </div>
                             <div className="flex items-center gap-2">
                               <span>{n.count99}</span>
                               <div className="flex flex-wrap gap-1">
@@ -801,7 +813,10 @@ export default function Home() {
                             </div>
                           </td>
 
-                          <td className="py-2 px-3">
+                          <td className="py-2 px-3 md:table-cell block">
+                            <div className="md:hidden text-xs uppercase text-muted-foreground mb-1">
+                              Closest Next 99
+                            </div>
                             {nextInfo ? (
                               <div className="flex items-center gap-2">
                                 <img
@@ -813,7 +828,7 @@ export default function Home() {
                                   className="h-4 w-4"
                                 />
                                 <span>
-                                  {nextInfo.skill} ({nextInfo.level}→99) -{" "}
+                                  {nextInfo.skill} ({nextInfo.level}→99) —{" "}
                                   <span className="font-medium">
                                     {nextInfo.delta.toLocaleString()} XP
                                   </span>{" "}
@@ -836,11 +851,11 @@ export default function Home() {
         )}
       </div>
 
-      <footer className="mt-10 flex justify-center gap-4">
+      <footer className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
         <Button
           asChild
           size="lg"
-          className="text-base font-medium transition-transform duration-250 hover:scale-95"
+          className="w-full sm:w-auto text-base font-medium transition-transform duration-150 hover:scale-95 active:scale-90"
         >
           <a
             href="https://tinyurl.com/yc2f7m4j"
@@ -855,7 +870,7 @@ export default function Home() {
           asChild
           size="lg"
           variant="secondary"
-          className="text-base font-medium transition-transform duration-250 hover:scale-95"
+          className="w-full sm:w-auto text-base font-medium transition-transform duration-150 hover:scale-95 active:scale-90"
         >
           <a
             href="https://oldschool.runescape.wiki/w/Pay-to-play_Fishing_training"
