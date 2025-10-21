@@ -794,7 +794,7 @@ export default function Home() {
                                     width={16}
                                     height={16}
                                     loading="lazy"
-                                    className="h-4 w-4 rounded-sm"
+                                    className="h-4 w-4"
                                   />
                                 ))}
                               </div>
@@ -810,7 +810,7 @@ export default function Home() {
                                   width={16}
                                   height={16}
                                   loading="lazy"
-                                  className="h-4 w-4 rounded-sm"
+                                  className="h-4 w-4"
                                 />
                                 <span>
                                   {nextInfo.skill} ({nextInfo.level}→99) -{" "}
