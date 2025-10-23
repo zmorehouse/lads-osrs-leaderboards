@@ -389,6 +389,34 @@ export default function Home() {
     return { tally, next };
   }, [players]);
 
+  const nextLevelData = useMemo(() => {
+    if (!players.length)
+      return [] as Array<{
+        player: string;
+        best: null | { skill: string; level: number; delta: number };
+      }>;
+
+    const skillsToCheck = skillOrder.filter((s) => s !== "Overall");
+
+    return players.map((p) => {
+      let best: null | { skill: string; level: number; delta: number } = null;
+
+      for (const skill of skillsToCheck) {
+        const s = p.skills[skill];
+        if (!s) continue; 
+        if (s.level < 1 || s.level >= 99 || s.xp < 0 || s.rank < 0) continue;
+
+        const delta = xpToNextLevel(s.level, s.xp);
+        if (delta == null) continue;
+
+        if (!best || delta < best.delta)
+          best = { skill, level: s.level, delta };
+      }
+
+      return { player: p.player, best };
+    });
+  }, [players, skillOrder]);
+
   const { rows } = useMemo(() => {
     if (!players.length || !selectedSkill) {
       return { rows: [] as Array<any> };
@@ -477,7 +505,7 @@ export default function Home() {
     <main className="min-h-screen bg-background p-6">
       <div className="mx-auto max-w-5xl space-y-6">
         <Card>
-        <CardHeader className="text-xl flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between md:gap-0">
+          <CardHeader className="text-xl flex flex-col items-start gap-3 md:flex-row md:items-center md:justify-between md:gap-0">
             <CardTitle>The Lads' OSRS Rankings</CardTitle>
 
             <div className="flex w-full flex-col gap-3 sm:flex-row md:w-auto">
@@ -519,8 +547,6 @@ export default function Home() {
               </Button>
             </div>
           </CardHeader>
-
-     
 
           <CardContent className="overflow-auto">
             {errors.length > 0 && (
@@ -844,6 +870,88 @@ export default function Home() {
                         </tr>
                       );
                     })}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        )}
+
+        {nextLevelData.length > 0 && (
+          <Card>
+            <CardContent className="overflow-auto">
+              <table className="w-full text-sm">
+                <thead className="hidden md:table-header-group">
+                  <tr className="text-left border-b">
+                    <th className="py-2 px-3 font-semibold">Player</th>
+                    <th className="py-2 px-3 font-semibold">Next Level</th>
+                    <th className="py-2 px-3 font-semibold">XP Remaining</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {nextLevelData
+                    .slice()
+                    .sort((a, b) => {
+                      if (!a.best && b.best) return 1;
+                      if (a.best && !b.best) return -1;
+                      if (!a.best && !b.best)
+                        return a.player.localeCompare(b.player);
+                      return (
+                        a!.best!.delta - b!.best!.delta ||
+                        a.player.localeCompare(b.player)
+                      );
+                    })
+                    .map(({ player, best }) => (
+                      <tr
+                        key={player}
+                        className="border-b last:border-0 md:table-row block py-3"
+                      >
+                        <td className="py-2 px-3 md:table-cell block">
+                          <div className="md:hidden text-xs uppercase text-muted-foreground mb-1">
+                            Player
+                          </div>
+                          <div className="font-medium">{player}</div>
+                        </td>
+
+                        <td className="py-2 px-3 md:table-cell block">
+                          <div className="md:hidden text-xs uppercase text-muted-foreground mb-1">
+                            Next Level
+                          </div>
+                          {best ? (
+                            <div className="flex items-center gap-2">
+                              <img
+                                src={skillIconUrl(best.skill)}
+                                alt={`${best.skill} icon`}
+                                width={16}
+                                height={16}
+                                loading="lazy"
+                                className="h-4 w-4"
+                              />
+                              <span>
+                                {best.skill} ({best.level}→{best.level + 1})
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-muted-foreground">
+                              No eligible skills
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="py-2 px-3 md:table-cell block">
+                          <div className="md:hidden text-xs uppercase text-muted-foreground mb-1">
+                            XP Remaining
+                          </div>
+                          {best ? (
+                            <span className="font-medium">
+                              {best.delta.toLocaleString()} XP
+                            </span>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </CardContent>
