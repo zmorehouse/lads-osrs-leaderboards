@@ -39,6 +39,7 @@ const DEFAULT_NAMES = [
   "Alexiisss",
   "JonezyAU",
   "ThyJamison",
+  "Chair_Bourne",
 ];
 
 const COMBAT_SKILLS = [
