@@ -404,7 +404,7 @@ export default function Home() {
 
       for (const skill of skillsToCheck) {
         const s = p.skills[skill];
-        if (!s) continue; 
+        if (!s) continue;
         if (s.level < 1 || s.level >= 99 || s.xp < 0 || s.rank < 0) continue;
 
         const delta = xpToNextLevel(s.level, s.xp);
@@ -425,18 +425,23 @@ export default function Home() {
 
     const base = players.map((p) => {
       const s = p.skills[selectedSkill];
-      const unranked = s.rank === -1 || s.level === -1 || s.xp === -1;
 
-      const _levelN = unranked ? Number.NEGATIVE_INFINITY : s.level;
-      const _xpN = unranked ? Number.NEGATIVE_INFINITY : s.xp;
-      const _rankN = unranked ? Number.POSITIVE_INFINITY : s.rank;
+      const hasLevel = s.level >= 0;
+      const hasXP = s.xp >= 0;
+      const hasRank = s.rank >= 0;
+
+      const _levelN = hasLevel ? s.level : Number.NEGATIVE_INFINITY;
+      const _xpN = hasXP ? s.xp : Number.NEGATIVE_INFINITY;
+      const _rankN = hasRank ? s.rank : Number.POSITIVE_INFINITY;
 
       return {
         player: p.player,
         level: s.level,
         xp: s.xp,
         rank: s.rank,
-        unranked,
+        hasLevel,
+        hasXP,
+        hasRank,
         _levelN,
         _xpN,
         _rankN,
@@ -577,24 +582,18 @@ export default function Home() {
               <TableBody>
                 {rows.map((r) => (
                   <TableRow key={r.player}>
-                    <TableCell>
-                      {r.unranked ? "—" : `#${r.groupRank}`}
-                    </TableCell>
-
+                    <TableCell>#{r.groupRank}</TableCell>
                     <TableCell className="font-medium">{r.player}</TableCell>
-
                     <TableCell>
-                      {r.unranked ? NOT_QUALIFIED : r.level}
+                      {r.hasLevel ? r.level : NOT_QUALIFIED}
                     </TableCell>
-
                     <TableCell>
-                      {r.unranked ? NOT_QUALIFIED : r.xp.toLocaleString()}
+                      {r.hasXP ? r.xp.toLocaleString() : NOT_QUALIFIED}
                     </TableCell>
-
                     <TableCell>
-                      {r.unranked
-                        ? NOT_QUALIFIED
-                        : `#${r.rank.toLocaleString()}`}
+                      {r.hasRank
+                        ? `#${r.rank.toLocaleString()}`
+                        : NOT_QUALIFIED}
                     </TableCell>
                   </TableRow>
                 ))}
