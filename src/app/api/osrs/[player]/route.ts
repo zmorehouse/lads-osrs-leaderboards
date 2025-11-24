@@ -11,7 +11,7 @@ export const revalidate = 900;
 const SKILLS = [
   "Overall","Attack","Defence","Strength","Hitpoints","Ranged","Prayer","Magic",
   "Cooking","Woodcutting","Fletching","Fishing","Firemaking","Crafting","Smithing","Mining",
-  "Herblore","Agility","Thieving","Slayer","Farming","Runecraft","Hunter","Construction",
+  "Herblore","Agility","Thieving","Slayer","Farming","Runecraft","Hunter","Construction","Sailing",
 ] as const;
 
 function sanitizeRSN(rsn: string) {
