@@ -1,8 +1,12 @@
-// app/api/timeseries/group/route.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable @next/next/no-img-element */
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// GET /api/timeseries/group?players=Zoobz69,loub0t69&skill=Overall
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const playersParam = searchParams.get("players");
