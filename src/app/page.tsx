@@ -8,6 +8,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ExpOver30DaysChart } from "@/components/ExpOver30DaysChart";
 import {
   Table,
   TableBody,
@@ -40,6 +41,7 @@ const DEFAULT_NAMES = [
   "JonezyAU",
   "ThyJamison",
   "Chair_Bourne",
+  "JoelizKewl",
 ];
 
 const COMBAT_SKILLS = [
@@ -770,6 +772,8 @@ export default function Home() {
             </Card>
           </div>
         )}
+
+        <ExpOver30DaysChart players={DEFAULT_NAMES} />
 
         {ninesData.tally.length > 0 && (
           <Card>

@@ -1,0 +1,27 @@
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "binary"  
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") 
+}
+
+model Player {
+  id        Int         @id @default(autoincrement())
+  username  String      @unique
+  createdAt DateTime    @default(now())
+  snapshots Snapshot[]
+}
+
+model Snapshot {
+  id        Int      @id @default(autoincrement())
+  player    Player   @relation(fields: [playerId], references: [id])
+  playerId  Int
+  data      Json
+  recordedAt DateTime @default(now())
+
+  @@index([playerId, recordedAt])
+}

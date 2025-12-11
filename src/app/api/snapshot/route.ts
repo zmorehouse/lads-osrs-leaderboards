@@ -4,40 +4,37 @@
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable @next/next/no-img-element */
 
-
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { fetchOsrsStats } from "@/lib/osrs";
 
-export const revalidate = 900;
-
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ player: string }> } 
-  ) {
-
+export async function POST(req: Request) {
   try {
-    const { player } = await params;
-    const data = await fetchOsrsStats(player);
-    const dbPlayer = await prisma.player.upsert({
-      where: { username: player },
+    const { username } = await req.json();
+    if (!username) {
+      return NextResponse.json(
+        { error: "username is required" },
+        { status: 400 }
+      );
+    }
+    const player = await prisma.player.upsert({
+      where: { username },
       update: {},
-      create: { username: player },
+      create: { username },
     });
-
+    const stats = await fetchOsrsStats(username);
     await prisma.snapshot.create({
       data: {
-        playerId: dbPlayer.id,
-        data,
+        playerId: player.id,
+        data: stats,
       },
     });
-
-    return NextResponse.json(data, { status: 200 });
+    return NextResponse.json({ ok: true });
   } catch (err: any) {
     console.error(err);
     return NextResponse.json(
       { error: err.message ?? "Unknown error" },
-      { status: 502 }
+      { status: 500 }
     );
   }
 }
