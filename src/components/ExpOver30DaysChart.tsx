@@ -66,35 +66,23 @@ export function ExpOver30DaysChart({ players }: Props) {
     (async () => {
       setLoading(true);
       try {
-        const results = await Promise.all(
-          players.map(async (username) => {
-            const res = await fetch(
-              `/api/timeseries?username=${encodeURIComponent(
-                username
-              )}&skill=${encodeURIComponent("Overall")}`
-            );
-            const json = await res.json();
-            return {
-              username,
-              points: (json.points || []) as TimeseriesPoint[],
-            };
-          })
-        );
+        const params = new URLSearchParams({
+          skill: "Overall",
+          players: players.join(","),
+        });
 
-        const mapped: SeriesByPlayer = {};
-        for (const r of results) {
-          mapped[r.username] = {
-            points: r.points,
-          };
-        }
-        setSeries(mapped);
+        const res = await fetch(`/api/timeseries/group?${params.toString()}`);
+        const json = await res.json();
+
+        setSeries((json.series || {}) as SeriesByPlayer);
       } catch (e) {
-        console.error("Failed to load timeseries", e);
+        console.error("Failed to load timeseries (group)", e);
       } finally {
         setLoading(false);
       }
     })();
   }, [players]);
+
 
   const windowLabel = useMemo(() => {
     if (windowDays === 7) return "Last 7 days";
